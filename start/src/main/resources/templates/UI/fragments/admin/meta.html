@@ -1,0 +1,25 @@
+<th:block th:fragment="meta">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- [CSRF]-->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <!-- 썸네일 이미지 설정 -->
+    <meta property="og:image" content="">               <!-- ALOHA: 썸네일 로고 -->
+    <!-- 웹 페이지 설명 (선택 사항) -->
+    <meta name="description" content="💛START💛">          <!-- ALOHA: 추후 변경 -->
+    <meta property="og:description" content="💛START💛">   <!-- ALOHA: 추후 변경 -->
+    <!-- 웹 페이지 URL -->
+    <meta property="og:url" content="">                 <!-- ALOHA: 추후 변경 -->
+    <!-- 웹 페이지 제목 -->
+    <meta property="og:title" content="💛START💛">         <!-- ALOHA: 추후 변경 -->
+    <!-- 웹 페이지 타입 (웹사이트, 기사, 제품 등) -->
+    <meta property="og:type" content="website">         
+    <!-- 검색어 -->
+    <meta name="keywords" content="">                  <!-- ALOHA: 추후 변경 -->
+    <meta name="robots" content="index, follow">
+    <!-- 사이트 맵 -->
+    <link rel="sitemap" href="/sitemap.xml">
+
+</th:block>

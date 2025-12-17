@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{UI/layouts/user/main_layout}"
+      >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>고객 안내 - 💛START💛</title>
+  <!-- 사이트맵용 타이틀 -->
+  <meta name="title" content="고객 안내">
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQSYanLv_Pb8r5SLTS4VNuruUUaA7TNkQ&libraries=geometry"></script>
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <!-- Scrolla.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/scrolla.js/1.7.4/jquery.scrolla.min.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .section-padding {
+      padding: 80px 0;
+    }
+    
+    .info-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 40px;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-left: 5px solid #667eea;
+    }
+    
+    .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .info-card .icon {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+    
+    .contact-info {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .contact-item i {
+      color: #667eea;
+      margin-right: 15px;
+      width: 25px;
+      text-align: center;
+    }
+    
+    .map-container {
+      height: 400px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .policy-item {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-left: 4px solid #e74c3c;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .policy-item.shipping {
+      border-left-color: #3498db;
+    }
+    
+    .policy-item.refund {
+      border-left-color: #e74c3c;
+    }
+    
+    .highlight {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+    
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    
+    .fade-in-up.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .stagger-animation {
+      animation-delay: 0.1s;
+    }
+    
+    .stagger-animation:nth-child(2) { animation-delay: 0.2s; }
+    .stagger-animation:nth-child(3) { animation-delay: 0.3s; }
+    .stagger-animation:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body layout:fragment="content">
+  
+  <!-- Hero Section -->
+  <section class="hero-section text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h1 class="display-4 mb-4 animate__animated animate__fadeInDown">고객 안내</h1>
+          <p class="lead mb-5 animate__animated animate__fadeInUp animate__delay-1s">
+            💛START💛의 서비스 정보와 정책을 안내해드립니다
+          </p>
+          <div class="animate__animated animate__fadeInUp animate__delay-2s">
+            <a href="#info" class="btn btn-light btn-lg rounded-pill px-5">
+              <i class="fas fa-chevron-down me-2"></i>자세히 보기
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 회사 정보 Section -->
+  <section id="info" class="section-padding bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+          <h2 class="section-title fade-in-up animate__animated">회사 정보</h2>
+          <p class="lead text-muted fade-in-up animate__animated">💛START💛의 기본 정보를 확인하세요</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="info-card fade-in-up animate__animated stagger-animation">
+            <div class="text-center">
+              <i class="fas fa-building icon"></i>
+              <h4 class="mb-3">사업자 정보</h4>
+            </div>
+            <div class="contact-info">
+              <div class="contact-item">
+                <i class="fas fa-store"></i>
+                <div>
+                  <strong>상호:</strong> 💛START💛
+                </div>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-user-tie"></i>
+                <div>
+                  <strong>대표자명:</strong> 박시현
+                </div>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-id-card"></i>
+                <div>
+                  <strong>사업자등록번호:</strong> 195-51-01196
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+          <div class="info-card fade-in-up animate__animated stagger-animation">
+            <div class="text-center">
+              <i class="fas fa-map-marker-alt icon"></i>
+              <h4 class="mb-3">연락처 정보</h4>
+            </div>
+            <div class="contact-info">
+              <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                  <strong>전화번호:</strong> 
+                  <a href="tel:041-354-8001" class="text-decoration-none">041-354-8001</a>
+                </div>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-map-pin"></i>
+                <div>
+                  <strong>사업장 주소:</strong><br>
+                  충청남도 당진시 송악읍 가청로 181, 가동, 1층 1호
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 배송 및 환불 정책 Section -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+          <h2 class="section-title fade-in-up animate__animated">배송 및 환불 정책</h2>
+          <p class="lead text-muted fade-in-up animate__animated">주문 전 꼭 확인해주세요</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="policy-item shipping fade-in-up animate__animated stagger-animation">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-shipping-fast me-3" style="font-size: 2rem; color: #3498db;"></i>
+              <h4 class="mb-0">배송 정책</h4>
+            </div>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="fas fa-clock me-2 text-primary"></i>
+                <strong>배송기간:</strong> 주문 후 <span class="highlight">10일 이내</span> 배송
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-truck me-2 text-primary"></i>
+                <strong>배송방식:</strong> <span class="highlight">착불배송</span>
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                배송비는 상품 수령 시 지불하시면 됩니다.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+          <div class="policy-item refund fade-in-up animate__animated stagger-animation">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-undo me-3" style="font-size: 2rem; color: #e74c3c;"></i>
+              <h4 class="mb-0">환불 정책</h4>
+            </div>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="fas fa-calendar-check me-2 text-danger"></i>
+                <strong>환불기간:</strong> 상품 수령 후 <span class="highlight">7일 이내</span>
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                <strong>환불불가:</strong> <span class="highlight">기기설치 및 사용한 경우</span>
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-coins me-2 text-info"></i>
+                <strong>단순 변심:</strong> 고객이 <span class="highlight">배송비 부담</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="alert alert-warning fade-in-up animate__animated" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>주의사항:</strong> 환불 요청 시 상품의 상태를 확인한 후 처리됩니다. 
+            상품 훼손이나 사용 흔적이 있는 경우 환불이 제한될 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 오시는 길 Section -->
+  <section class="section-padding bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+          <h2 class="section-title fade-in-up animate__animated">오시는 길</h2>
+          <p class="lead text-muted fade-in-up animate__animated">💛START💛으로 찾아오세요</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="info-card fade-in-up animate__animated">
+            <h4 class="mb-4">
+              <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+              주소 정보
+            </h4>
+            <div class="contact-item mb-3">
+              <i class="fas fa-home"></i>
+              <div>
+                <strong>주소:</strong><br>
+                충청남도 당진시 송악읍 가청로 181, 가동, 1층 1호
+              </div>
+            </div>
+            <div class="contact-item mb-3">
+              <i class="fas fa-phone"></i>
+              <div>
+                <strong>연락처:</strong> 
+                <a href="tel:041-354-8001" class="text-decoration-none">041-354-8001</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-car"></i>
+              <div>
+                <strong>교통편:</strong><br>
+                대중교통 이용 시 송악읍 방면 버스 이용
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="fade-in-up animate__animated">
+            <div id="map" class="map-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 고객 지원 Section -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+          <h2 class="section-title fade-in-up animate__animated">고객 지원</h2>
+          <p class="lead text-muted fade-in-up animate__animated">궁금한 점이 있으시면 언제든 문의하세요</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <div class="info-card text-center fade-in-up animate__animated stagger-animation">
+            <i class="fas fa-headset icon"></i>
+            <h5 class="mb-3">전화 상담</h5>
+            <p class="text-muted mb-3">평일 09:00 ~ 18:00<br>점심시간 12:00 ~ 13:00</p>
+            <a href="tel:041-354-8001" class="btn btn-primary rounded-pill">
+              <i class="fas fa-phone me-2"></i>041-354-8001
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+          <div class="info-card text-center fade-in-up animate__animated stagger-animation">
+            <i class="fas fa-envelope icon"></i>
+            <h5 class="mb-3">이메일 문의</h5>
+            <p class="text-muted mb-3">24시간 접수 가능<br>영업일 기준 1~2일 내 답변</p>
+            <a href="mailto:info@bunsoomarket.com" class="btn btn-outline-primary rounded-pill">
+              <i class="fas fa-envelope me-2"></i>이메일 보내기
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+          <div class="info-card text-center fade-in-up animate__animated stagger-animation">
+            <i class="fas fa-comments icon"></i>
+            <h5 class="mb-3">온라인 문의</h5>
+            <p class="text-muted mb-3">실시간 채팅 상담<br>평일 09:00 ~ 18:00</p>
+            <button class="btn btn-success rounded-pill" onclick="openChat()">
+              <i class="fas fa-comment-dots me-2"></i>채팅 상담
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Google Maps 초기화
+    function initMap() {
+      // 💛START💛 위치 (예시 좌표 - 실제 주소로 변경 필요)
+      const location = { lat: 36.8895, lng: 126.6294 }; // 당진시 대략적 위치
+      
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: location,
+        styles: [
+          {
+            featureType: "all",
+            elementType: "geometry.fill",
+            stylers: [{ weight: "2.00" }]
+          },
+          {
+            featureType: "all",
+            elementType: "geometry.stroke",
+            stylers: [{ color: "#9c9c9c" }]
+          }
+        ]
+      });
+      
+      const marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: "💛START💛",
+        animation: google.maps.Animation.BOUNCE
+      });
+      
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="padding: 10px;">
+            <h6><strong>💛START💛</strong></h6>
+            <p style="margin: 5px 0;">충청남도 당진시 송악읍 가청로 181, 가동, 1층 1호</p>
+            <p style="margin: 5px 0;"><i class="fas fa-phone"></i> 041-354-8001</p>
+          </div>
+        `
+      });
+      
+      marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+      });
+      
+      // 5초 후 바운스 애니메이션 정지
+      setTimeout(() => {
+        marker.setAnimation(null);
+      }, 5000);
+    }
+    
+    // 페이지 로드 시 지도 초기화
+    window.onload = initMap;
+    
+    // 스크롤 애니메이션
+    $(document).ready(function() {
+      // Intersection Observer for scroll animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+            if (entry.target.classList.contains('animate__animated')) {
+              entry.target.style.animationDelay = entry.target.dataset.delay || '0s';
+              entry.target.classList.add('animate__fadeInUp');
+            }
+          }
+        });
+      }, observerOptions);
+      
+      // 모든 fade-in-up 요소들을 관찰
+      document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+      });
+      
+      // Stagger animation delays
+      document.querySelectorAll('.stagger-animation').forEach((el, index) => {
+        el.style.animationDelay = `${(index + 1) * 0.2}s`;
+      });
+      
+      // 부드러운 스크롤
+      $('a[href^="#"]').on('click', function(event) {
+        const target = $(this.getAttribute('href'));
+        if (target.length) {
+          event.preventDefault();
+          $('html, body').stop().animate({
+            scrollTop: target.offset().top - 80
+          }, 800);
+        }
+      });
+    });
+    
+    // 채팅 상담 함수
+    function openChat() {
+      alert('채팅 상담 서비스는 준비 중입니다. 전화 상담을 이용해주세요.');
+    }
+    
+    // 스크롤 시 헤더 효과 (선택사항)
+    $(window).scroll(function() {
+      const scroll = $(window).scrollTop();
+      if (scroll >= 100) {
+        $('.hero-section').addClass('scrolled');
+      } else {
+        $('.hero-section').removeClass('scrolled');
+      }
+    });
+  </script>
+
+</body>
+</html>
