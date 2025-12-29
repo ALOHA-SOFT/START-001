@@ -4,153 +4,151 @@
       layout:decorate="~{UI/layouts/admin/admin_layout}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>코드 수정</title>
 </head>
 <body layout:fragment="content">
-
-  <div class="container-fluid">
-    <!-- 페이지 헤더 -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-      <h1 class="h3 mb-0 text-gray-800">코드 수정</h1>
-      <a href="/admin/codes" class="d-none d-sm-inline-block btn btn-secondary shadow-sm">
-        <i class="material-icons-two-tone">list</i>
-        목록
-      </a>
-    </div>
-
-    <!-- 코드 수정 카드 -->
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">코드 정보</h6>
+  <main class="main-wrapper">
+    <div class="main-content">
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">
+          <i class="fadeIn animated bx bx-home"></i>
+          코드 관리
+        </div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item active" aria-current="page">수정하기</li>
+            </ol>
+          </nav>
+        </div>
       </div>
-      <div class="card-body">
-        <form id="codeForm" th:object="${codes}">
-          <input type="hidden" id="id" name="id" th:value="*{id}">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="codeGroupNo" class="form-label">코드그룹 <span class="text-danger">*</span></label>
-                <select class="form-select" id="codeGroupNo" name="codeGroupNo" required>
-                  <option value="">코드그룹을 선택하세요</option>
-                  <option th:each="codeGroup : ${codeGroups}" 
-                          th:value="${codeGroup.no}" 
-                          th:text="${codeGroup.name}"
-                          th:selected="${codeGroup.no == codes.codeGroupNo}">
-                  </option>
-                </select>
-                <div class="invalid-feedback">
-                  코드그룹을 선택해주세요.
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="name" class="form-label">코드명 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="name" name="name" th:value="*{name}" required>
-                <div class="invalid-feedback">
-                  코드명을 입력해주세요.
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="value" class="form-label">코드값 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="value" name="value" th:value="*{value}" required>
-                <div class="invalid-feedback">
-                  코드값을 입력해주세요.
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card">
+            <div class="card-body p-4">
+              <div class="position-absolute top-10 right-10">
+                <button id="deleteBtn" type="button" class="btn btn-danger btn-lg">
+                  <i class="fadeIn animated bx bx-trash font-20"></i>
+                </button>
+              </div>
+
+              <input type="hidden" id="id" name="id" th:value="${codes.id}">
+              <h5 class="mb-4">코드 기본 정보</h5>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="codeGroupNo" class="form-label">코드그룹 <span class="text-danger">*</span></label>
+                  <select class="form-select" id="codeGroupNo" name="codeGroupNo">
+                    <option value="">코드그룹을 선택하세요</option>
+                    <option th:each="codeGroup : ${codeGroups}" 
+                            th:value="${codeGroup.no}" 
+                            th:text="${codeGroup.name}"
+                            th:selected="${codeGroup.no == codes.codeGroupNo}">
+                    </option>
+                  </select>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="code" class="form-label">업무코드</label>
-                <input type="text" class="form-control" id="code" name="code" th:value="*{code}">
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="seq" class="form-label">순서</label>
-                <input type="number" class="form-control" id="seq" name="seq" th:value="*{seq}" min="0">
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-12">
-              <div class="mb-3">
-                <label for="description" class="form-label">설명 <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="description" name="description" rows="4" required th:text="*{description}"></textarea>
-                <div class="invalid-feedback">
-                  설명을 입력해주세요.
+                <div class="col-md-6">
+                  <label for="name" class="form-label">코드명 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="name" name="name" th:value="${codes.name}">
+                </div>
+                <div class="col-md-6">
+                  <label for="value" class="form-label">코드값 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="value" name="value" th:value="${codes.value}">
+                </div>
+                <div class="col-md-6">
+                  <label for="code" class="form-label">업무코드</label>
+                  <input type="text" class="form-control" id="code" name="code" th:value="${codes.code}">
+                </div>
+                <div class="col-md-6">
+                  <label for="seq" class="form-label">순서</label>
+                  <input type="number" class="form-control" id="seq" name="seq" th:value="${codes.seq}" min="0">
+                </div>
+                <div class="col-12">
+                  <label for="description" class="form-label">설명 <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="description" name="description" rows="4" th:text="${codes.description}"></textarea>
+                </div>
+                <div class="col-12 mt-4">
+                  <div class="d-grid">
+                      <button type="button" class="btn btn-lg btn-primary px-5" id="submitBtn">수정하기</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <div class="text-end">
-            <button type="button" class="btn btn-secondary me-2" onclick="history.back()">취소</button>
-            <button type="submit" class="btn btn-primary" id="submitBtn">
-              <i class="material-icons-two-tone me-2">save</i>
-              수정
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    // 페이지 로드 시 코드그룹 목록 로드
-    document.addEventListener('DOMContentLoaded', function() {
+    $('#submitBtn').click(function () {
+      const id = $('#id').val();
+      const data = {
+        id: id,
+        codeGroupNo: $('#codeGroupNo').val(),
+        name: $('#name').val(),
+        value: $('#value').val(),
+        code: $('#code').val(),
+        seq: $('#seq').val(),
+        description: $('#description').val()
+      };
 
-    });
-
-
-    document.getElementById('codeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const form = this;
-      const submitBtn = document.getElementById('submitBtn');
-      
-      // 폼 유효성 검사
-      if (!form.checkValidity()) {
-        form.classList.add('was-validated');
+      if (!data.codeGroupNo || !data.name || !data.value || !data.description) {
+        $alert('입력오류', '필수 항목을 모두 입력해주세요.', 'warning');
         return;
       }
 
-      // 로딩 상태 표시
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="spinner-border spinner-border-sm me-2" role="status"></i>수정 중...';
+      $confirm('코드 수정', '정말로 수정하시겠습니까?', 'warning', '수정', '취소')
+        .then(function(result) {
+          if (!result.isConfirmed) return;
+          $('#submitBtn').prop('disabled', true);
 
-      // 폼 데이터 생성
-      const formData = new FormData(form);
-
-      $ajax({
-        url: '/api/admin/codes',
-        type: 'PUT',
-        data: formData,
-        processData: false,
-        contentType: false
-      }).then(response => {
-        $alert('수정 완료', '코드가 성공적으로 수정되었습니다.', 'success').then(() => {
-          window.location.href = '/admin/codes';
+          $ajax({
+            url: '/api/admin/codes',
+            type: 'PUT',
+            data: data,
+            success: function (msg) {
+              $alert('코드 수정 성공', '코드가 수정되었습니다.', 'success')
+                .then(() => {
+                  location.href = '/admin/codes';
+                });
+            },
+            error: function (xhr) {
+              $('#submitBtn').prop('disabled', false);
+              console.error('코드 update failed:', xhr.status, xhr.responseText);
+              $alert('코드 수정 실패', '코드 수정에 실패했습니다.', 'error');
+            }
+          });
         });
-      }).catch(error => {
-        $alert('수정 실패', '코드 수정 중 오류가 발생했습니다.', 'error');
-      }).finally(() => {
-        // 버튼 상태 복원
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="material-icons-two-tone me-2">save</i>수정';
-      });
     });
-  </script>
 
+    /* =========================
+      * 삭제하기
+      * ========================= */
+    $('#deleteBtn').on('click', function () {
+      const id = $('#id').val();
+      $confirm('코드 삭제', '정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.', 'error', '삭제', '취소')
+        .then(function(result) {
+          if (!result.isConfirmed) return;
+
+          $ajax({
+            url: '/api/admin/codes/' + id,
+            type: 'DELETE',
+            success: function (msg) {
+              $alert('코드 삭제 성공', '코드가 삭제되었습니다.', 'success')
+                .then(() => {
+                  location.href = '/admin/codes';
+                });
+            },
+            error: function (xhr) {
+              console.error('코드 delete failed:', xhr.status, xhr.responseText);
+              $alert('코드 삭제 실패', '코드 삭제에 실패했습니다.', 'error');
+            }
+          });
+        });
+    })
+    
+  </script>
 </body>
 </html>
+      

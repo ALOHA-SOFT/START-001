@@ -12,5 +12,7 @@ import com.aloha.start.domain.system.SeqGroups;
 public interface SeqGroupsMapper extends BaseMapper<SeqGroups> {
   
     public List<SeqGroups> list(Map<String, Object> params);
+
+    public List<SeqGroups> listWithParams(Map<String, Object> params);
   
 }

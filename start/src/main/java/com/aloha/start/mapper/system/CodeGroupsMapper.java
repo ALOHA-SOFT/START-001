@@ -12,5 +12,7 @@ import com.aloha.start.domain.system.CodeGroups;
 public interface CodeGroupsMapper extends BaseMapper<CodeGroups> {
 
     public List<CodeGroups> list(Map<String, Object> params);
+
+    public List<CodeGroups> listWithParams(Map<String, Object> params);
   
 }

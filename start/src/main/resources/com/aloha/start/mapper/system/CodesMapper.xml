@@ -28,6 +28,44 @@
         ORDER BY seq ASC, no DESC
     </select>
 
+    <select id="listWithParams" resultMap="CodesMap">
+        SELECT c.*
+        FROM codes c
+        WHERE 1=1
+
+        <if test="queryParams.search != null and queryParams.search != ''">
+            AND (c.name LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR c.code LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR c.value LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR c.description LIKE CONCAT('%', #{queryParams.search}, '%'))
+        </if>
+
+        <if test="queryParams.params != null">
+            <if test="queryParams.params.start != null and queryParams.params.start != ''">
+                AND c.created_at <![CDATA[>=]]> CONCAT(#{queryParams.params.start}, ' 00:00:00')
+            </if>
+            <if test="queryParams.params.end != null and queryParams.params.end != ''">
+                AND c.created_at <![CDATA[<=]]> CONCAT(#{queryParams.params.end}, ' 23:59:59')
+            </if>
+            <if test="queryParams.params.codeGroupNo != null">
+                AND c.code_group_no = #{queryParams.params.codeGroupNo}
+            </if>
+        </if>
+
+        <if test="sortBy != null and sortBy.size() > 0">
+            ORDER BY
+            <foreach collection="sortBy" item="sortField" index="idx" separator=",">
+                ${sortField}
+                <if test="sortOrder != null and sortOrder.size() > idx">
+                    ${sortOrder[idx]}
+                </if>
+            </foreach>
+        </if>
+        <if test="sortBy == null or sortBy.size() == 0">
+            ORDER BY c.seq ASC, c.no DESC
+        </if>
+    </select>
+
     <select id="selectCodeGroup" resultType="CodeGroups">
         SELECT *
         FROM code_group

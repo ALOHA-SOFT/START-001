@@ -26,14 +26,42 @@ public class SeqGroupsServiceImpl extends BaseServiceImpl<SeqGroups, SeqGroupsMa
 
     @Override
     public PageInfo<SeqGroups> page(QueryParams queryParams) {
-        int page = (int) queryParams.getPage();
-        int size = (int) queryParams.getSize();
+        log.info("## 시퀀스그룹 목록 조회 ##");
+
+        int page = queryParams.getPage();
+        int size = queryParams.getSize();
         log.info("queryParams : {}", queryParams);
+
+        applySearchFilter(queryParams);
+
         PageHelper.startPage(page, size);
-        Map<String, Object> params = new HashMap<>();
+
+        Map<String, Object> params = new HashMap<>(2);
         params.put("queryParams", queryParams);
-        List<SeqGroups> list = seqGroupsMapper.list(params);
+
+        List<SeqGroups> list = seqGroupsMapper.listWithParams(params);
         return new PageInfo<>(list);
     }
 
+    private void applySearchFilter(QueryParams queryParams) {
+        Map<String, Object> p = queryParams.getParams();
+        
+        // 검색 파라미터 정규화
+        normalizeSearchParam(p, "groupId");
+        normalizeSearchParam(p, "groupName");
+        normalizeSearchParam(p, "enabled");
+    }
+
+    private void normalizeSearchParam(Map<String, Object> p, String key) {
+        Object obj = p.get(key);
+        if (!hasText(obj)) {
+            p.remove(key);
+            return;
+        }
+        p.put(key, obj.toString().trim());
+    }
+
+    private boolean hasText(Object obj) {
+        return obj != null && !obj.toString().trim().isEmpty();
+    }
 }

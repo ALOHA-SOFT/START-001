@@ -12,5 +12,7 @@ import com.aloha.start.domain.system.Codes;
 public interface CodesMapper extends BaseMapper<Codes> {
   
     public List<Codes> list(Map<String, Object> params);
+
+    public List<Codes> listWithParams(Map<String, Object> params);
   
 }

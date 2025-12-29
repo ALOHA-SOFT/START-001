@@ -4,293 +4,273 @@
       layout:decorate="~{UI/layouts/admin/admin_layout}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>회원 관리</title>
+  <title>회원관리</title>
 </head>
 <body layout:fragment="content">
-
-  <div class="container-fluid">
-    <!-- 페이지 헤더 -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-      <h1 class="h3 mb-0 text-gray-800">회원 관리</h1>
-      <a href="/admin/users/create" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
-        <i class="material-icons-two-tone">add</i>등록
-      </a>
-    </div>
-
-    <!-- 카테고리 목록 카드 -->
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">회원 목록</h6>
-        <div class="d-flex justify-content-end align-items-center">
-          <span class="text-muted">total <strong th:text="${#numbers.formatInteger(pagination.total, 0, 'COMMA')}">0</strong></span>
+  <main class="main-wrapper">
+    <div class="main-content">
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">
+          <i class="fadeIn animated bx bx-home"></i>
+          회원관리
+        </div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item active" aria-current="page">리스트</li>
+            </ol>
+          </nav>
         </div>
       </div>
-      <div class="card-body">
-        <!-- 검색/필터 영역 -->
-        <div class="row mb-3">
-          <div class="col-md-4">
-            <form th:action="@{/admin/users}" method="get" class="d-flex">
-              <input type="hidden" name="size" th:value="${pagination.size}" />
-              <div class="input-group">
-                <input type="text" name="keyword" class="form-control" placeholder="이름, 아이디, 이메일로 검색" th:value="${param.keyword}">
-                <button class="btn btn-outline-secondary" type="submit">
-                  <i class="material-icons-two-tone">search</i> 검색
-                </button>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+
+              <!-- 필터 Row 1: 검색 -->
+              <div class="row mb-3 align-items-center">
+                <div class="col-auto">
+                  <div class="input-group" style="width: 400px;">
+                    <input type="text" class="form-control" placeholder="이름, 아이디, 연락처로 검색..." id="searchInput" th:value="${queryParams.search}">
+                    <button class="btn btn-outline-secondary" type="button" id="searchBtn"><i class="bx bx-search-alt"></i></button>
+                  </div>
+                </div>
+                <div class="col text-end">
+                  <button class="btn btn-outline-secondary" type="button" onclick="setPeriod(7)">1주일</button>
+                  <button class="btn btn-outline-secondary ms-2" type="button" onclick="setPeriod(30)">1개월</button>
+                  <div class="d-inline-block ms-2 position-relative top-3">
+                    <input type="date" class="form-control d-inline-block" style="width: 150px;" id="start" 
+                          th:value="${queryParams != null and queryParams.params != null ? queryParams.params['start'] : ''}">
+                    <span class="mx-2">~</span>
+                    <input type="date" class="form-control d-inline-block" style="width: 150px;" id="end" 
+                          th:value="${queryParams != null and queryParams.params != null ? queryParams.params['end'] : ''}">
+                  </div>
+                  <button class="btn btn-outline-secondary ms-2" type="button" id="dateSearchBtn">검색<i class="bx bx-search"></i></button>
+                </div>
               </div>
-            </form>
-          </div>
-          <div class="col-md-4">
-            <div class="input-group">
-              <label for="pageSizeSelect" class="input-group-text">
-                <i class="material-icons-two-tone">view_list</i>
-              </label>
-              <select class="form-select" id="pageSizeSelect" onchange="changePageSize()" th:field="*{pagination.size}">
-                <option value="10">10개씩 보기</option>
-                <option value="20">20개씩 보기</option>
-                <option value="50">50개씩 보기</option>
-                <option value="100">100개씩 보기</option>
-              </select>
+
+              <!-- 필터 Row 2: 성별, 활성화, 등록하기 -->
+              <div class="row mb-3 align-items-center">
+                <div class="col-auto">
+                  <select class="form-select d-inline-block" style="width: auto;" id="enabledFilter">
+                    <option value="">활성 전체</option>
+                    <option value="1" th:selected="${queryParams != null and queryParams.params != null and queryParams.params['enabled'] == '1'}">활성</option>
+                    <option value="0" th:selected="${queryParams != null and queryParams.params != null and queryParams.params['enabled'] == '0'}">비활성</option>
+                  </select>
+                </div>
+                <div class="col text-end">
+                  <a href="/admin/users/create" class="btn btn-primary"><i class="bx bx-plus-circle me-1"></i>등록하기</a>
+                </div>
+              </div>
+              
+              <!-- 테이블 -->
+              <div class="table-responsive" style="min-height: 600px;">
+                <table class="table table-hover" id="users-table">
+                  <thead>
+                    <tr class="text-center">
+                      <th style="width: 50px;"><input type="checkbox" class="form-check-input" id="checkAll"></th>
+                      <th>No</th>
+                      <th>아이디</th>
+                      <th>이름</th>
+                      <th>연락처</th>
+                      <th>이메일</th>
+                      <th>활성</th>
+                      <th>등록일</th>
+                      <th style="width: 100px;">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-center">
+                    <!-- 데이터 없을 때 -->
+                    <tr th:if="${pageInfo == null or #lists.isEmpty(pageInfo.list)}">
+                      <td colspan="8" class="text-center py-5 text-muted">
+                        조회된 회원이 없습니다.
+                      </td>
+                    </tr>
+
+                    <!-- 데이터 있을 때 -->
+                    <tr th:each="users : ${pageInfo.list}">
+                      <td>
+                        <input type="checkbox" class="form-check-input user-checkbox" th:value="${users.no}">
+                        <input type="hidden" id="userId" th:value="${users.id}">
+                      </td>
+                      <td th:text="${users.no}">userNo</td>
+                      <td th:text="${users.username}">user001</td>
+                      <td th:text="${users.name}">홍길동</td>
+                      <td th:text="${users.tel}">010-1234-5678</td>
+                      <td th:text="${users.email}">user@example.com</td>
+                      <td>
+                        <span class="badge"
+                              th:classappend="${users.enabled} ? ' bg-success' : ' bg-secondary'"
+                              th:text="${users.enabled} ? '활성' : '비활성'">
+                          활성
+                        </span>
+                      </td>
+
+                      <td th:text="${#dates.format(users.createdAt,'yyyy-MM-dd HH:mm:ss')}">2024-12-19</td>
+
+                      <td>
+                        <a th:href="@{/admin/users/update/{id}(id=${users.id})}"
+                          class="btn btn-sm btn-outline-primary"><i class="bx bx-edit"></i></a>
+
+                        <button class="btn btn-sm btn-outline-danger"
+                                th:attr="data-id=${users.id}"
+                                onclick="deleteUser(this)">
+                          <i class="bx bx-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card-footer pt-3">
+                <th:block th:replace="~{UI/fragments/common/page::page}"></th:block>
+              </div>
             </div>
           </div>
-          <div class="col-md-4 text-end">
-            <button type="button" class="btn btn-danger me-2" id="deleteSelectedBtn" disabled>
-              <i class="material-icons-two-tone">delete</i> 선택 삭제
-            </button>
-          </div>
         </div>
-    
-        <!-- 테이블 -->
-        <div class="table-responsive">
-          <table class="table table-bordered" id="userTable">
-            <thead class="table-light">
-              <tr>
-                <th width="3%">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="selectAll">
-                  </div>
-                </th>
-                <th>권한</th>
-                <th>아이디</th>
-                <th>이름</th>
-                <th>이메일</th>
-                <th>전화번호</th>
-                <th>상태</th>
-                <th>가입일</th>
-                <th width="15%">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:if="${#lists.isEmpty(pageInfo.list)}">
-                <td colspan="8" class="text-center text-muted py-4">등록된 회원이 없습니다.</td>
-              </tr>
-              <tr th:each="user, iterStat : ${pageInfo.list}">
-                <td>
-                  <div class="form-check">
-                    <input class="form-check-input user-checkbox" type="checkbox" 
-                           th:value="${user.no}" th:id="'check-' + ${user.no}">
-                  </div>
-                </td>
-                <td>
-                  <span th:each="auth, authStat : ${user.authList}" 
-                    class="badge bg-info me-1" 
-                    th:text="${auth == null ? '' : auth.auth }"
-                    >
-                  </span>
-                </td>
-                <td th:text="${user.username}"></td>
-                <td th:text="${user.name}"></td>
-                <td th:text="${user.email}"></td>
-                <td th:text="${user.tel}"></td>
-                <td>
-                  <span class="badge" th:classappend="${user.enabled ? 'bg-success' : 'bg-danger'}" th:text="${user.enabled ? '활성' : '비활성'}"></span>
-                </td>
-                <td th:text="${#dates.format(user.createdAt, 'yyyy-MM-dd')}"></td>
-                <td>
-                  <div class="dropdown"></div>
-                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-[[${user.id}]]" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="material-icons-two-tone">more_vert</i>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-[[${user.id}]]">
-                      <li>
-                        <a class="dropdown-item" th:href="@{/admin/users/{id}(id=${user.id})}">
-                          수정
-                        </a>
-                      </li>
-                      <li>
-                        <a href="javascript:;" class="dropdown-item text-danger"
-                          th:onclick="deleteUser([[${user.no}]])">
-                          삭제
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-        </div>
-
-        <!-- 페이지 -->
-        <th:block th:replace="~{UI/fragments/common/page::page}"></th:block>
-
       </div>
     </div>
+  </main>
 
-
-
-  </div>
+  <script src="/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+  <script src="/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
+  
 
   <script>
-    // 전체 선택/해제
-    document.getElementById('selectAll').addEventListener('change', function() {
-      const checkboxes = document.querySelectorAll('.user-checkbox');
-      const isChecked = this.checked;
-      
-      checkboxes.forEach(function(checkbox) {
-        checkbox.checked = isChecked;
-      });
-      
-      updateDeleteButton();
-    });
+    // ✅ 회원 삭제 (목록에서도 동작)
+    function deleteUser(el) {
+      const id = el?.getAttribute('data-id'); // 또는 $(el).data('id')
 
-    // 개별 체크박스 변경 시
-    document.addEventListener('change', function(e) {
-      if (e.target.classList.contains('user-checkbox')) {
-        updateSelectAllState();
-        updateDeleteButton();
-      }
-    });
-
-    // 전체 선택 체크박스 상태 업데이트
-    function updateSelectAllState() {
-      const checkboxes = document.querySelectorAll('.user-checkbox');
-      const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-      const selectAllCheckbox = document.getElementById('selectAll');
-      
-      if (checkedBoxes.length === 0) {
-        selectAllCheckbox.indeterminate = false;
-        selectAllCheckbox.checked = false;
-      } else if (checkedBoxes.length === checkboxes.length) {
-        selectAllCheckbox.indeterminate = false;
-        selectAllCheckbox.checked = true;
-      } else {
-        selectAllCheckbox.indeterminate = true;
-        selectAllCheckbox.checked = false;
-      }
-    }
-
-    // 삭제 버튼 상태 업데이트
-    function updateDeleteButton() {
-      const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-      const deleteBtn = document.getElementById('deleteSelectedBtn');
-      
-      if (checkedBoxes.length > 0) {
-        deleteBtn.disabled = false;
-        deleteBtn.innerHTML = `<i class="material-icons-two-tone">delete</i> 선택 삭제 (${checkedBoxes.length})`;
-      } else {
-        deleteBtn.disabled = true;
-        deleteBtn.innerHTML = '<i class="material-icons-two-tone">delete</i> 선택 삭제';
-      }
-    }
-
-    // 선택 삭제 기능
-    document.getElementById('deleteSelectedBtn').addEventListener('click', function() {
-      const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-      
-      if (checkedBoxes.length === 0) {
-        $alert('선택 오류', '삭제할 회원을 선택해주세요.', 'warning');
+      if (!id) {
+        $alert('오류', '삭제할 사용자 ID를 찾을 수 없습니다.', 'error');
         return;
       }
 
-      const selectedIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
-      
-      $confirmHTML('선택 삭제', 
-               `선택한 ${selectedIds.length}명의 회원을 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.`, 
-               'warning', '삭제', '취소')
-      .then(function(result) {
-        if (result.isConfirmed) {
-          deleteSelectedUsers(selectedIds);
-        }
-      });
-    });
+      $confirm('회원 삭제', '삭제하시겠습니까?', 'warning', '삭제', '취소')
+        .then(function (result) {
+          if (!result.isConfirmed) return;
 
-    // 선택된 회원들 삭제
-    function deleteSelectedUsers(userIds) {
-      let successCount = 0;
-      let failCount = 0;
-      let totalCount = userIds.length;
-
-      // 로딩 상태 표시
-      const deleteBtn = document.getElementById('deleteSelectedBtn');
-      deleteBtn.disabled = true;
-      deleteBtn.innerHTML = '<i class="spinner-border spinner-border-sm" role="status"></i> 삭제 중...';
-
-      // 순차적으로 삭제 요청
-      const deletePromises = userIds.map(userId => {
-        return $ajax({
-          url: '/api/users/' + userId,
-          type: 'DELETE'
-        }).then(() => {
-          successCount++;
-        }).catch(() => {
-          failCount++;
-        });
-      });
-
-      // 모든 삭제 요청 완료 후 결과 표시
-      Promise.all(deletePromises).then(() => {
-        if (failCount === 0) {
-          $alert('삭제 완료', `${successCount}명의 회원이 삭제되었습니다.`, 'success').then(() => {
-            window.location.reload();
-          });
-        } else if (successCount === 0) {
-          $alert('삭제 실패', '회원 삭제에 실패했습니다.', 'error');
-        } else {
-          $alert('부분 삭제', 
-                 `${successCount}명 삭제 성공, ${failCount}명 삭제 실패했습니다.`, 
-                 'warning').then(() => {
-            window.location.reload();
-          });
-        }
-        
-        // 버튼 상태 복원
-        updateDeleteButton();
-      });
-    }
-
-    // 개별 삭제
-    function deleteUser(userNo) {
-      $confirmHTML('회원 삭제', 
-                   '정말로 이 회원을 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.', 
-                   'warning', '삭제', '취소')
-      .then(function(result) {
-        if (result.isConfirmed) {
           $ajax({
-            url: '/api/users/' + userNo,
-            type: 'DELETE'
-          }).then(response => {
-            $alert('성공', '회원이 성공적으로 삭제되었습니다.', 'success').then(() => {
-              window.location.reload();
-            });
-          }).catch(error => {
-            $alert('오류', '삭제 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
-          });
-        }
-      });
-    }
+            url: '/admin/users/delete/' + id,
+            type: 'DELETE',
+            success: function (res) {
+              // 서버가 문자열을 주는 경우도 대비
+              if (res && typeof res === 'object' && res.success === false) {
+                $alert('회원 삭제', '회원 삭제에 실패했습니다.', 'error');
+                return;
+              }
 
-    // 페이지 크기 변경
-    function changePageSize() {
-      const selectElement = document.getElementById('pageSizeSelect');
-      const size = selectElement.value;
-      const currentUrl = new URL(window.location);
-      currentUrl.searchParams.set('size', size);
-      currentUrl.searchParams.set('page', '1');
-      window.location.href = currentUrl.toString();
+              $alert('회원 삭제', '회원 정보가 성공적으로 삭제되었습니다.', 'success')
+                .then(() => location.href = '/admin/users');
+            },
+            error: function (xhr) {
+              $('#submitBtn').prop('disabled', false);
+
+              console.error('User delete failed:', xhr.status, xhr.responseText);
+              $alert('회원 삭제', '회원 정보 삭제에 실패했습니다.', 'error');
+            }
+          });
+        });
     }
   </script>
 
+  <script>
+    $(document).ready(function() {
+
+    // 전체 체크
+    $('#checkAll').on('change', function () {
+      $('.user-checkbox').prop('checked', this.checked);
+    });
+
+    // 개별 체크 변경 시 전체체크 상태 반영
+    $(document).on('change', '.user-checkbox', function () {
+      const total = $('.user-checkbox').length;
+      const checked = $('.user-checkbox:checked').length;
+      $('#checkAll').prop('checked', total > 0 && total === checked);
+    });
+
+    // 1. 드롭박스 변경 시 즉시 검색 실행
+    $('#enabledFilter').on('change', function () {
+      applyFilters();
+    });
+
+    // 2. 검색창 엔터키 지원
+    $('#searchInput').on('keypress', function(e) {
+        if (e.which === 13) applyFilters();
+    });
+
+    // 3. 버튼 클릭 이벤트
+    $('#dateSearchBtn, #searchBtn').click(function() {
+        applyFilters();
+    });
+  });
+
+    // ✅ 목록 필터 적용(서버로 GET 이동)
+    function applyFilters(extra = {}) {
+      const search = $('#searchInput').val();
+      const start = $('#start').val();
+      const end = $('#end').val();
+
+      const enabled = $('#enabledFilter').val();  // '' | '1' | '0'
+
+      let params = new URLSearchParams();
+      params.append('page', '1');
+
+      if (search) params.append('search', search);
+      if (start) params.append('params[start]', start);
+      if (end) params.append('params[end]', end);
+      if (enabled !== '') params.append('params[enabled]', enabled);
+
+      Object.entries(extra).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && String(v).trim() !== '') {
+          params.set(k, String(v).trim());
+        }
+      });
+
+      location.href = '/admin/users?' + params.toString();
+    }
+    
+    // ✅ 기간 버튼: 7일/30일
+    function setPeriod(days) {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - days);
+
+      const toYmd = (d) => {
+        const offset = d.getTimezoneOffset() * 60000;
+        return new Date(d - offset).toISOString().substring(0, 10);
+      };
+
+      $('#start').val(toYmd(start));
+      $('#end').val(toYmd(end));
+
+      // 7일=filter 1, 30일=filter 2 (원하는 규칙 그대로)
+      const filter = (days === 7) ? 1 : (days === 30) ? 2 : null;
+      applyFilters(filter ? { filter } : {});
+    }
+
+  </script>
+
+  <!-- ⬇️⭐⭐⭐ dataTable ⭐⭐⭐⬇️ -->
+  <script src="/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+	<script src="/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      const table = $('#users-table').DataTable({
+        lengthChange: false,
+        paging: false,
+        searching: false,
+        info: false,
+        buttons: ['copy', 'excel', 'pdf', 'print']
+      });
+
+      table.buttons().container()
+        .appendTo('#users-table_wrapper .col-md-6:eq(0)');
+    });
+  </script>
+  <!-- ⬆️⭐⭐⭐ dataTable ⭐⭐⭐⬆️ -->
 </body>
 </html>

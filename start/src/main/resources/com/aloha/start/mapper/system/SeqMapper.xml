@@ -25,6 +25,43 @@
         ORDER BY no DESC
     </select>
 
+    <select id="listWithParams" resultMap="SeqMap">
+        SELECT s.*
+        FROM seq s
+        WHERE 1=1
+
+        <if test="queryParams.search != null and queryParams.search != ''">
+            AND (s.name LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR s.code LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR s.description LIKE CONCAT('%', #{queryParams.search}, '%'))
+        </if>
+
+        <if test="queryParams.params != null">
+            <if test="queryParams.params.start != null and queryParams.params.start != ''">
+                AND s.created_at <![CDATA[>=]]> CONCAT(#{queryParams.params.start}, ' 00:00:00')
+            </if>
+            <if test="queryParams.params.end != null and queryParams.params.end != ''">
+                AND s.created_at <![CDATA[<=]]> CONCAT(#{queryParams.params.end}, ' 23:59:59')
+            </if>
+            <if test="queryParams.params.seqGroupNo != null">
+                AND s.seq_group_no = #{queryParams.params.seqGroupNo}
+            </if>
+        </if>
+
+        <if test="sortBy != null and sortBy.size() > 0">
+            ORDER BY
+            <foreach collection="sortBy" item="sortField" index="idx" separator=",">
+                ${sortField}
+                <if test="sortOrder != null and sortOrder.size() > idx">
+                    ${sortOrder[idx]}
+                </if>
+            </foreach>
+        </if>
+        <if test="sortBy == null or sortBy.size() == 0">
+            ORDER BY s.no DESC
+        </if>
+    </select>
+
     <select id="selectSeqGroup" resultType="SeqGroups">
         SELECT *
         FROM seq_groups

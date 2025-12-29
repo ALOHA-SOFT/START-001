@@ -1,234 +1,168 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{UI/layouts/admin/admin_layout}"
-      >
+      layout:decorate="~{UI/layouts/admin/admin_layout}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>사용자 수정</title>
+  <title>회원 수정</title>
 </head>
 <body layout:fragment="content">
-
-  <div class="container-fluid">
-    <!-- 페이지 헤더 -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-      <h1 class="h3 mb-0 text-gray-800">사용자 수정</h1>
-      <a href="/admin/users" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
-        <i class="fas fa-list fa-sm text-white-50"></i> 목록으로
-      </a>
-    </div>
-
-    <!-- 수정 폼 카드 -->
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">사용자 정보 수정</h6>
+  <main class="main-wrapper">
+    <div class="main-content">
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3"><i class="fadeIn animated bx bx-home"></i> 회원관리</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item active" aria-current="page">수정하기</li>
+            </ol>
+          </nav>
+        </div>
       </div>
-      <div class="card-body">
-        <form id="userUpdateForm" class="needs-validation" novalidate th:object="${user}">
-          <!-- CSRF TOKEN -->
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-          <!-- 원본 ID (수정 시 참조용) -->
-          <input type="hidden" th:field="*{no}" id="originalNo">
-          
-          <div class="row">
-            <div class="col-md-8">
-              <!-- 사용자 번호 (읽기 전용) -->
-              <div class="mb-3">
-                <label for="no" class="form-label">no</label>
-                <input type="text" class="form-control" th:field="*{no}" readonly>
-              </div>
 
-              <!-- 사용자 ID (읽기 전용) -->
-              <div class="mb-3">
-                <label for="no" class="form-label">ID</label>
-                <input type="text" class="form-control" th:field="*{id}" readonly>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card">
+            <div class="card-body p-4">
+              <div class="position-absolute top-10 right-10">
+                <button id="deleteBtn" type="button" class="btn btn-danger btn-lg">
+                  <i class="fadeIn animated bx bx-trash font-20"></i>
+                </button>
               </div>
-
-              <!-- 사용자 아이디 (읽기 전용) -->
-              <div class="mb-3">
-                <label for="username" class="form-label">사용자 ID</label>
-                <input type="text" class="form-control" th:field="*{username}" readonly>
-                <div class="form-text">사용자 ID는 수정할 수 없습니다.</div>
-              </div>
-
-              <!-- 비밀번호 -->
-              <div class="mb-3">
-                <label for="password" class="form-label">비밀번호</label>
-                <input type="password" class="form-control" th:field="*{password}" 
-                       placeholder="비밀번호를 변경하려면 입력하세요">
-                <div class="form-text">비밀번호를 변경하지 않으려면 비워두세요.</div>
-              </div>
-
-              <!-- 이름 -->
-              <div class="mb-3">
-                <label for="name" class="form-label">이름 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" th:field="*{name}" required 
-                       maxlength="100" placeholder="이름을 입력하세요">
-                <div class="invalid-feedback">이름을 입력해주세요.</div>
-              </div>
-
-              <!-- 전화번호 -->
-              <div class="mb-3">
-                <label for="tel" class="form-label">전화번호</label>
-                <input type="tel" class="form-control" th:field="*{tel}" 
-                       maxlength="20" placeholder="전화번호를 입력하세요">
-              </div>
-
-              <!-- 이메일 -->
-              <div class="mb-3">
-                <label for="email" class="form-label">이메일 <span class="text-danger">*</span></label>
-                <input type="email" class="form-control" th:field="*{email}" required 
-                       maxlength="100" placeholder="이메일을 입력하세요">
-                <div class="invalid-feedback">올바른 이메일을 입력해주세요.</div>
-              </div>
-
-              <!-- 계정 활성화 여부 -->
-              <div class="mb-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" th:field="*{enabled}" id="enabled">
-                  <label class="form-check-label" for="enabled">
-                    계정 활성화
-                  </label>
-                </div>
-                <div class="form-text">비활성화된 계정은 로그인할 수 없습니다.</div>
-              </div>
-
-              <!-- 등록일/수정일 (읽기 전용) -->
-              <div class="row">
+              <input type="hidden" id="userId" th:value="${user.id}">
+              <h5 class="mb-4">회원 기본 정보</h5>
+              <div class="row g-3">
                 <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="createdAt" class="form-label">등록일</label>
-                    <input type="text" class="form-control" 
-                           th:value="${#dates.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}" readonly>
-                  </div>
+                  <label for="username" class="form-label">아이디 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" readonly>
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="updatedAt" class="form-label">수정일</label>
-                    <input type="text" class="form-control" 
-                           th:value="${#dates.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                  <label for="name" class="form-label">이름 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="name" name="name" th:value="${user.name}" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="tel" class="form-label">전화번호</label>
+                  <input type="text" class="form-control" id="tel" name="tel" th:value="${user.tel}">
+                </div>
+                <div class="col-md-6">
+                  <label for="email" class="form-label">이메일</label>
+                  <input type="email" class="form-control" id="email" name="email" th:value="${user.email}">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">활성화 여부</label>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enabled" name="enabled" th:checked="${user.enabled}">
+                    <label class="form-check-label" for="enabled">활성화</label>
                   </div>
                 </div>
-              </div>
 
-              <!-- 버튼 영역 -->
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">취소</button>
-                <button type="button" class="btn btn-danger me-md-2" id="deleteBtn" 
-                        th:onclick="deleteUser([[${user.id}]])">삭제</button>
-                <button type="submit" class="btn btn-primary">수정</button>
-              </div>
-            </div>
-
-            <!-- 도움말 영역 -->
-            <div class="col-md-4">
-              <div class="card bg-light">
-                <div class="card-body">
-                  <h6 class="card-title">수정 안내</h6>
-                  <ul class="card-text small">
-                    <li>사용자 ID는 수정할 수 없습니다.</li>
-                    <li>비밀번호를 변경하지 않으려면 비워두세요.</li>
-                    <li>이름과 이메일은 필수 입력 항목입니다.</li>
-                    <li>계정 비활성화 시 해당 사용자는 로그인할 수 없습니다.</li>
-                  </ul>
-                </div>
-              </div>
-
-              <!-- 사용자 권한 정보 -->
-              <div class="card bg-info text-white mt-3" th:if="${user.authList != null and !user.authList.isEmpty()}">
-                <div class="card-body">
-                  <h6 class="card-title">권한 정보</h6>
-                  <div th:each="auth : ${user.authList}">
-                    <span class="badge bg-light text-dark me-1" th:text="${auth.auth}">권한</span>
+                <!-- 수정하기, 삭제하기 버튼 -->
+                <div class="row">
+                  <div class="col-12">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <div class="d-grid">
+                        <button id="updateBtn" type="button" class="btn btn-primary btn-lg">수정하기</button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    // 폼 제출
-    document.getElementById('userUpdateForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
+    const token  = $('meta[name="_csrf"]').attr('content');
+    const header = $('meta[name="_csrf_header"]').attr('content');
 
-      // 폼 유효성 검사
-      if (!this.checkValidity()) {
-        this.classList.add('was-validated');
+    // ✅ CSRF 헤더 자동 적용
+    $.ajaxSetup({
+      beforeSend: function (xhr) {
+        if (token && header) xhr.setRequestHeader(header, token);
+      }
+    });
+
+    $('#updateBtn').on('click', function () {
+      const id = $('#userId').val();
+
+      const data = {
+        id,
+        username: $('#username').val(),
+        name: $('#name').val()?.trim(),
+        tel: $('#tel').val()?.trim(),
+        email: $('#email').val()?.trim(),
+        enabled: $('#enabled').is(':checked')
+      };
+
+      if (!data.name) {
+        $alert('입력오류', '이름은 필수입니다.', 'warning');
         return;
       }
 
-      // 폼 데이터 수집
-      const formData = {};
-      const formElements = new FormData(this);
-      for (let [key, value] of formElements.entries()) {
-        formData[key] = value;
-      }
+      $confirm('회원 수정', '수정하시겠습니까?', 'warning', '수정', '취소')
+        .then(function (result) {
+          if (!result.isConfirmed) return;
 
-      const userId = document.getElementById('originalNo').value;
+          $('#updateBtn').prop('disabled', true);
 
-      // 수정 요청
-      $ajax({
-        url: '/api/users/user',
-        type: 'PUT',
-        data: formData
-      }).then(response => {
-        $alert('성공', '사용자 정보가 성공적으로 수정되었습니다.', 'success').then(() => {
-          window.location.href = '/admin/users';
-        });
-      }).catch(error => {
-        $alert('오류', '수정 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
-      });
-    });
-
-    // 삭제 기능
-    function deleteUser(userId) {
-      $confirmHTML('사용자 삭제', 
-               '정말로 이 사용자를 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 사용자 정보는 복구할 수 없습니다.', 
-               'warning',
-               '삭제',
-               '취소').then((result) => {
-        if (result.isConfirmed) {
           $ajax({
-            url: '/api/users/user/' + userId,
-            type: 'DELETE'
-          }).then(response => {
-            $alert('성공', '사용자가 삭제되었습니다.', 'success').then(() => {
-              window.location.href = '/admin/users';
-            });
-          }).catch(error => {
-            if (error.status === 409) {
-              $alert('삭제 불가', '이 사용자는 삭제할 수 없습니다.', 'warning');
-            } else {
-              $alert('오류', '삭제 중 오류가 발생했습니다.', 'error');
+            url: '/admin/users/update/' + id,
+            type: 'PUT',
+            data: data,
+            success: function () {
+              $alert('회원 수정','회원이 성공적으로 수정되었습니다.', 'success')
+                .then(() => location.href = '/admin/users');
+            },
+            error: function (xhr) {
+              $('#submitBtn').prop('disabled', false);
+
+              console.error('User update failed:', xhr.status, xhr.responseText);
+              $alert('실패', '회원 수정에 실패했습니다.', 'error');
             }
           });
-        }
-      });
+        });
+    });
+
+    function deleteUser() {
+      const id = $('#userId').val();
+
+      $confirm('회원 삭제', '삭제하시겠습니까?', 'warning', '삭제', '취소')
+        .then(function (result) {
+          if (!result.isConfirmed) return;
+
+          $ajax({
+            url: '/admin/users/delete/' + id,
+            type: 'DELETE',
+            success: function (res) {
+              if (res && res.success) {
+                $alert('회원 삭제','회원이 성공적으로 삭제되었습니다.', 'success')
+                  .then(() => location.href = '/admin/users');
+              } else {
+                $alert('회원 삭제','삭제에 실패했습니다.', 'error');
+              }
+            },
+            error: function (xhr) {
+              $('#submitBtn').prop('disabled', false);
+
+              console.error('User delete failed:', xhr.status, xhr.responseText);
+              $alert('회원 삭제', '회원 삭제에 실패했습니다.', 'error');
+            }
+          });
+        });
     }
 
-    // Bootstrap validation
-    (function() {
-      'use strict';
-      window.addEventListener('load', function() {
-        const forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-          }, false);
-        });
-      }, false);
-    })();
+    $('#deleteBtn').on('click', function() {
+      deleteUser();
+    });
   </script>
+
+
 
 </body>
 </html>

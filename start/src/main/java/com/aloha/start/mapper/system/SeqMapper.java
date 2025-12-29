@@ -12,5 +12,7 @@ import com.aloha.start.domain.system.Seq;
 public interface SeqMapper extends BaseMapper<Seq> {
   
     public List<Seq> list(Map<String, Object> params);
+
+    public List<Seq> listWithParams(Map<String, Object> params);
   
 }

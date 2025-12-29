@@ -23,4 +23,37 @@
         ORDER BY no DESC
     </select>
 
+    <select id="listWithParams" resultMap="CodeGroupsMap">
+        SELECT cg.*
+        FROM code_groups cg
+        WHERE 1=1
+
+        <if test="queryParams.search != null and queryParams.search != ''">
+            AND (cg.name LIKE CONCAT('%', #{queryParams.search}, '%')
+                OR cg.description LIKE CONCAT('%', #{queryParams.search}, '%'))
+        </if>
+
+        <if test="queryParams.params != null">
+            <if test="queryParams.params.start != null and queryParams.params.start != ''">
+                AND cg.created_at <![CDATA[>=]]> CONCAT(#{queryParams.params.start}, ' 00:00:00')
+            </if>
+            <if test="queryParams.params.end != null and queryParams.params.end != ''">
+                AND cg.created_at <![CDATA[<=]]> CONCAT(#{queryParams.params.end}, ' 23:59:59')
+            </if>
+        </if>
+
+        <if test="sortBy != null and sortBy.size() > 0">
+            ORDER BY
+            <foreach collection="sortBy" item="sortField" index="idx" separator=",">
+                ${sortField}
+                <if test="sortOrder != null and sortOrder.size() > idx">
+                    ${sortOrder[idx]}
+                </if>
+            </foreach>
+        </if>
+        <if test="sortBy == null or sortBy.size() == 0">
+            ORDER BY cg.no DESC
+        </if>
+    </select>
+
 </mapper>

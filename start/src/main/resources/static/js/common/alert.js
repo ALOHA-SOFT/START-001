@@ -44,6 +44,24 @@ function $alert_(title, text, icon, confirmButtonText = '확인') {
     });
 }
 
+/**
+ * HTML 지원 알림창
+ * @param {*} title 
+ * @param {*} html 
+ * @param {*} icon 
+ * @param {*} confirmButtonText 
+ * @returns 
+ */
+function $alertHTML(title, html, icon, confirmButtonText = '확인') {
+    return Swal.fire({
+        title: title,
+        html: html,
+        icon: icon,
+        confirmButtonText: confirmButtonText,
+        animation: true
+    })
+}
+
 
 /**
  * 기본 confirm 알림창

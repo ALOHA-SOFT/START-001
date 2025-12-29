@@ -64,7 +64,7 @@ public class UserController {
     /**
      * 회원 수정 페이지
      */
-    @GetMapping("/{id}")
+    @GetMapping("/update/{id}")
     public String updateForm(@PathVariable("id") String id, Model model) {
         Users user = userService.selectById(id);
         model.addAttribute("user", user);

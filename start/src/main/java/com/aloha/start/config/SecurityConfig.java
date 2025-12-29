@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import com.aloha.start.security.handler.CustomAccessDeniedHandler;
+import com.aloha.start.security.handler.CustomAuthenticationEntryPoint;
 import com.aloha.start.security.handler.CustomAuthenticationSuccessHandler;
 import com.aloha.start.security.handler.CustomLogoutSuccessHandler;
 import com.aloha.start.security.handler.CustomRememberMeServices;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     @Autowired private CustomLogoutSuccessHandler logoutSuccessHandler;
     @Autowired private LoginFailureHandler loginFailureHandler;
     @Autowired private CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Autowired private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
 
     @Bean
@@ -70,7 +72,7 @@ public class SecurityConfig {
                 // 자동 로그인 설정
                 // - 자동 로그인 기본 파라미터 : remember-me
                 .rememberMe(rememberMe -> rememberMe
-                                .key("ckauto")
+                                .key("start")
                                 .rememberMeServices(customRememberMeServices())
                                 .tokenRepository(tokenRepository())
                                 .userDetailsService(customDetailsService)
@@ -85,6 +87,8 @@ public class SecurityConfig {
                 )
                 // 예외 처리 설정
                 .exceptionHandling(exception -> exception
+                                // 인증되지 않은 사용자 접근 처리 (경로별 다른 로그인 페이지)
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
                                 // 접근 거부 처리자 설정
                                 .accessDeniedHandler(customAccessDeniedHandler)
                 )
@@ -165,7 +169,7 @@ public class SecurityConfig {
      */
     @Bean
     public CustomRememberMeServices customRememberMeServices() {
-        return new CustomRememberMeServices("ckauto", customDetailsService, tokenRepository());
+        return new CustomRememberMeServices("start", customDetailsService, tokenRepository());
     }
   
 }
