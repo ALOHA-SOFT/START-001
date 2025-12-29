@@ -31,6 +31,9 @@ public class DDLConfig implements IDdl {
         stmt.execute("SET NAMES utf8mb4");
         stmt.execute("SET CHARACTER SET utf8mb4");
       }
+
+      // MyBatis Plus의 DDL 작업 실행 (버전 관리 테이블 생성 등)
+      consumer.accept(dataSource);
       
       // SQL 파일들을 UTF-8로 읽어서 실행
       for (String sqlFile : getSqlFiles()) {
