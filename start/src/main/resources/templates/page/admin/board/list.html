@@ -5,18 +5,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>코드관리</title>
+  <title>게시판 관리</title>
   <!-- DataTable CSS -->
   <link href="/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 </head>
 <body layout:fragment="content">
   <main class="main-wrapper">
     <div class="main-content">
-      <!-- Breadcrumb -->
       <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
         <div class="breadcrumb-title pe-3">
           <i class="fadeIn animated bx bx-home"></i>
-          코드관리
+          게시판관리
         </div>
         <div class="ps-3">
           <nav aria-label="breadcrumb">
@@ -31,11 +30,12 @@
         <div class="col-12">
           <div class="card">
             <div class="card-body">
-              <!-- 필터 Row 1: 검색 -->
+
+              <!-- 필터 Row 1: 검색 & 기간검색 -->
               <div class="row mb-3 align-items-center">
                 <div class="col-auto">
                   <div class="input-group" style="width: 400px;">
-                    <input type="text" class="form-control" placeholder="코드명, 값으로 검색..." id="searchInput" th:value="${queryParams.search}">
+                    <input type="text" class="form-control" placeholder="제목으로 검색..." id="searchInput" th:value="${param.search}">
                     <button class="btn btn-outline-secondary" type="button" id="searchBtn"><i class="bx bx-search-alt"></i></button>
                   </div>
                 </div>
@@ -53,7 +53,7 @@
                 </div>
               </div>
 
-              <!-- 필터 Row 2: N개씩 보기, 코드그룹 필터, 선택삭제, 등록하기 -->
+              <!-- 필터 Row 2: N개씩 보기 & 선택삭제 -->
               <div class="row mb-3 align-items-center">
                 <div class="col-auto">
                   <!-- N개씩 보기 -->
@@ -73,61 +73,56 @@
                       </button>
                     </div>
                   </form>
-                  <!-- 코드그룹 필터 -->
-                  <select class="form-select d-inline-block ms-2" style="width: auto;" id="codeGroupFilter">
-                    <option value="">코드그룹 전체</option>
-                    <option th:each="cg : ${codeGroups}" 
-                            th:value="${cg.id}" 
-                            th:text="${cg.name}"
-                            th:selected="${queryParams != null and queryParams.params != null and queryParams.params['codeGroupNo'] == cg.id}">
-                      코드그룹
-                    </option>
-                  </select>
                 </div>
                 <div class="col text-end">
                   <button class="btn btn-outline-danger me-2" type="button" id="deleteSelectedBtn" disabled><i class="bx bx-trash me-1"></i>선택 삭제</button>
-                  <a href="/admin/codes/create" class="btn btn-primary"><i class="bx bx-plus-circle me-1"></i>등록하기</a>
+                  <a href="/admin/board/create" class="btn btn-primary"><i class="bx bx-plus-circle me-1"></i>등록하기</a>
                 </div>
               </div>
+
               
               <!-- 테이블 -->
               <div class="table-responsive" style="min-height: 600px;">
-                <table class="table table-hover" id="codes-table">
+                <table class="table table-hover" id="board-table">
                   <thead>
                     <tr class="text-center">
-                      <th style="width: 50px;"><input type="checkbox" class="form-check-input" id="checkAll"></th>
+                      <th style="width: 50px;"><input type="checkbox" class="form-check-input" id="selectAll"></th>
                       <th>No</th>
-                      <th>코드그룹</th>
-                      <th>코드명</th>
-                      <th>코드값</th>
-                      <th>Code</th>
-                      <th>Seq</th>
+                      <th>타입</th>
+                      <th>제목</th>
+                      <th>순서</th>
                       <th>등록일</th>
                       <th style="width: 100px;">관리</th>
                     </tr>
                   </thead>
                   <tbody class="text-center">
+                    <!-- 데이터 없을 때 -->
                     <tr th:if="${pageInfo == null or #lists.isEmpty(pageInfo.list)}">
-                      <td colspan="9" class="text-center py-5 text-muted">
-                        조회된 데이터가 없습니다.
+                      <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bx bx-info-circle"></i>
+                        등록된 게시글이 없습니다.
                       </td>
                     </tr>
-                    <tr th:each="item : ${pageInfo.list}">
+
+                    <!-- 데이터 있을 때 -->
+                    <tr th:each="board : ${pageInfo.list}">
                       <td>
-                        <input type="checkbox" class="form-check-input codes-checkbox" th:value="${item.id}">
+                        <input type="checkbox" class="form-check-input board-checkbox" 
+                               th:value="${board.id}">
                       </td>
-                      <td th:text="${item.no}">1</td>
-                      <td th:text="${item.codeGroups.name}">코드그룹</td>
-                      <td th:text="${item.name}">코드명</td>
-                      <td th:text="${item.value}">값</td>
-                      <td th:text="${item.code}">CODE</td>
-                      <td th:text="${item.seq}">1</td>
-                      <td th:text="${#dates.format(item.createdAt,'yyyy-MM-dd HH:mm:ss')}">2024-12-19</td>
+                      <td th:text="${board.no}"></td>
                       <td>
-                        <a th:href="@{/admin/codes/update/{id}(id=${item.id})}"
-                          class="btn btn-sm btn-outline-primary"><i class="bx bx-edit"></i></a>
-                        <button class="btn btn-sm btn-outline-danger"
-                                th:onclick="deleteCode( [[${item.id}]] )">
+                        <span class="badge bg-info" th:text="${board.type}"></span>
+                      </td>
+                      <td th:text="${board.title}"></td>
+                      <td th:text="${board.seq != null ? board.seq : '-'}"></td>
+                      <td th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd')}"></td>
+                      <td>
+                        <a th:href="@{/admin/board/{id}(id=${board.id})}" class="btn btn-sm btn-outline-primary me-1">
+                          <i class="bx bx-edit-alt"></i>
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                th:onclick="'deleteBoard(\\'' + ${board.id} + '\\')'">
                           <i class="bx bx-trash"></i>
                         </button>
                       </td>
@@ -149,11 +144,12 @@
   <!-- DataTable JS -->
   <script src="/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
   <script src="/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
-  
+
   <script>
     $(document).ready(function() {
+
       // ⭐⭐⭐ DataTable 초기화 ⭐⭐⭐
-      const table = $('#codes-table').DataTable({
+      const table = $('#board-table').DataTable({
         lengthChange: false,
         paging: false,
         searching: false,
@@ -162,22 +158,22 @@
       });
 
       table.buttons().container()
-        .appendTo('#codes-table_wrapper .col-md-6:eq(0)');
+        .appendTo('#board-table_wrapper .col-md-6:eq(0)');
 
       // 초기 삭제 버튼 상태 업데이트
       updateDeleteButton();
     });
 
     // 전체 선택/해제
-    $("#checkAll").on('change', function() {
+    $("#selectAll").on('change', function() {
       const isChecked = $(this).is(':checked');
-      $('.codes-checkbox').prop('checked', isChecked);
+      $('.board-checkbox').prop('checked', isChecked);
       updateDeleteButton();
     });
 
     // 개별 체크박스 변경 시
     document.addEventListener('change', function(e) {
-      if (e.target.classList.contains('codes-checkbox')) {
+      if (e.target.classList.contains('board-checkbox')) {
         updateSelectAllState();
         updateDeleteButton();
       }
@@ -185,9 +181,9 @@
 
     // 전체 선택 체크박스 상태 업데이트
     function updateSelectAllState() {
-      const checkboxes = $('.codes-checkbox');
-      const checkedBoxes = $('.codes-checkbox:checked');
-      const selectAllCheckbox = $('#checkAll');
+      const checkboxes = $('.board-checkbox');
+      const checkedBoxes = $('.board-checkbox:checked');
+      const selectAllCheckbox = $('#selectAll');
         
       if (checkedBoxes.length === 0) {
         selectAllCheckbox.prop('indeterminate', false);
@@ -203,7 +199,7 @@
 
     // 삭제 버튼 상태 업데이트
     function updateDeleteButton() {
-      const checkedBoxes = $('.codes-checkbox:checked');
+      const checkedBoxes = $('.board-checkbox:checked');
       const deleteBtn = $('#deleteSelectedBtn');
       
       if (checkedBoxes.length > 0) {
@@ -215,17 +211,20 @@
       }
     }
 
-    // 코드그룹 필터 변경 시
-    $('#codeGroupFilter').on('change', function () {
+    // 검색창 엔터키 지원
+    $("#searchInput").on('keypress', function(e) {
+      if (e.which === 13) {
+        applyFilters();
+      }
+    });
+
+    // 검색 버튼 클릭
+    $("#searchBtn").on('click', function() {
       applyFilters();
     });
 
-    // 검색창 엔터키
-    $('#searchInput').on('keypress', function(e) {
-      if (e.which === 13) applyFilters();
-    });
-
-    $('#searchBtn, #dateSearchBtn').click(function() {
+    // 기간 검색 버튼 클릭
+    $("#dateSearchBtn").on('click', function() {
       applyFilters();
     });
 
@@ -247,12 +246,12 @@
       }
     });
 
+    // ✅ 목록 필터 적용(서버로 GET 이동)
     function applyFilters(extra = {}) {
       const search = $('#searchInput').val();
       const size = $('#pageSize').val();
       const start = $('#start').val();
       const end = $('#end').val();
-      const codeGroupNo = $('#codeGroupFilter').val();
 
       let params = new URLSearchParams();
       params.append('page', '1');
@@ -261,7 +260,6 @@
       if (search) params.append('search', search);
       if (start) params.append('params[start]', start);
       if (end) params.append('params[end]', end);
-      if (codeGroupNo) params.append('params[codeGroupNo]', codeGroupNo);
 
       Object.entries(extra).forEach(([k, v]) => {
         if (v !== null && v !== undefined && String(v).trim() !== '') {
@@ -269,9 +267,11 @@
         }
       });
 
-      location.href = '/admin/codes?' + params.toString();
+      const currentPath = window.location.pathname;
+      location.href = currentPath + '?' + params.toString();
     }
-    
+
+    // ✅ 기간 버튼: 1주일/1개월
     function setPeriod(days) {
       const end = new Date();
       const start = new Date();
@@ -284,29 +284,29 @@
 
       $('#start').val(toYmd(start));
       $('#end').val(toYmd(end));
-      applyFilters();
+
+      // 1주일=filter 1, 1개월=filter 2
+      const filter = (days === 7) ? 1 : (days === 30) ? 2 : null;
+      applyFilters(filter ? { filter } : {});
     }
 
     // ✅ 개별 삭제
-    function deleteCode(id) {
-      if (!id) {
-        $alert('오류', '삭제할 ID를 찾을 수 없습니다.', 'error');
-        return;
-      }
-      $confirmHTML('코드 삭제',
-                   '정말로 이 코드를 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.',
+    function deleteBoard(boardId) {
+      $confirmHTML('게시글 삭제', 
+                   '정말로 이 게시글을 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.', 
                    'warning', '삭제', '취소')
         .then(function(result) {
           if (!result.isConfirmed) return;
+
           $ajax({
-            url: '/api/admin/codes/' + id,
+            url: '/api/common/board/' + boardId,
             type: 'DELETE'
           }).then(response => {
-            $toast_({ title: '코드가 삭제되었습니다.', icon: 'success' }).then(() => {
+            $toast_({ title: '게시글이 삭제되었습니다.', icon: 'success' }).then(() => {
               window.location.reload();
             });
           }).catch(error => {
-            console.error('Delete failed:', error);
+            console.error('Board delete failed:', error);
             $alert('오류', '삭제 중 오류가 발생했습니다.', 'error');
           });
         });
@@ -314,36 +314,39 @@
 
     // ✅ 선택 삭제
     function deleteSelected() {
-      const checkedBoxes = $('.codes-checkbox:checked');
+      const checkedBoxes = $('.board-checkbox:checked');
       
       if (checkedBoxes.length === 0) {
-        $alert('선택 오류', '삭제할 코드를 선택해주세요.', 'warning');
+        $alert('선택 오류', '삭제할 게시글을 선택해주세요.', 'warning');
         return;
       }
 
       const selectedIds = checkedBoxes.map((_, checkbox) => checkbox.value).get();
       
       $confirmHTML('선택 삭제', 
-                   `선택한 ${selectedIds.length}개의 코드를 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.`, 
+                   `선택한 ${selectedIds.length}개의 게시글을 삭제하시겠습니까?<br><br><strong>주의:</strong> 삭제된 데이터는 복구할 수 없습니다.`, 
                    'warning', '삭제', '취소')
         .then(function(result) {
           if (!result.isConfirmed) return;
-          deleteSelectedItems(selectedIds, '/api/admin/codes/', '코드');
+          deleteSelectedBoards(selectedIds);
         });
     }
 
-    // 선택된 항목들 삭제
-    function deleteSelectedItems(ids, baseUrl, itemName) {
+    // 선택된 게시글들 삭제
+    function deleteSelectedBoards(boardIds) {
       let successCount = 0;
       let failCount = 0;
+      let totalCount = boardIds.length;
 
+      // 로딩 상태 표시
       const deleteBtn = $("#deleteSelectedBtn");
       deleteBtn.prop('disabled', true);
       deleteBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> 삭제 중...');
 
-      const deletePromises = ids.map(id => {
+      // 순차적으로 삭제 요청
+      const deletePromises = boardIds.map(boardId => {
         return $ajax({
-          url: baseUrl + id,
+          url: '/api/common/board/' + boardId,
           type: 'DELETE'
         }).then(() => {
           successCount++;
@@ -352,13 +355,14 @@
         });
       });
 
+      // 모든 삭제 요청 완료 후 결과 표시
       Promise.all(deletePromises).then(() => {
         if (failCount === 0) {
-          $alert('삭제 완료', `${successCount}개의 ${itemName}이(가) 삭제되었습니다.`, 'success').then(() => {
+          $alert('삭제 완료', `${successCount}개의 게시글이 삭제되었습니다.`, 'success').then(() => {
             window.location.reload();
           });
         } else if (successCount === 0) {
-          $alert('삭제 실패', `${itemName} 삭제에 실패했습니다.`, 'error');
+          $alert('삭제 실패', '게시글 삭제에 실패했습니다.', 'error');
           updateDeleteButton();
         } else {
           $alert('부분 삭제', 

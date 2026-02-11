@@ -2,20 +2,6 @@
   "configurations": [
     {
       "type": "java",
-      "name": "GeneratorCode",
-      "request": "launch",
-      "mainClass": "com.aloha.start.util.GeneratorCode",
-      "projectName": "start"
-    },
-    {
-      "type": "java",
-      "name": "GeneratorCode",
-      "request": "launch",
-      "mainClass": "com.aloha.util.GeneratorCode",
-      "projectName": "start"
-    },
-    {
-      "type": "java",
       "name": "Spring Boot-StartApplication<start>",
       "request": "launch",
       "cwd": "${workspaceFolder}",

@@ -1,5 +1,8 @@
 package com.aloha.start.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -7,7 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.aloha.start.domain.admin.Popups;
 import com.aloha.start.domain.common.QueryParams;
+import com.aloha.start.service.inter.admin.PopupService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class HomeController {
 
+  @Autowired private PopupService popupService;
 
   /**
    * 💻 메인
@@ -32,7 +38,9 @@ public class HomeController {
     QueryParams queryParams,
     Model model
   ) {
-
+    // 메인 팝업
+    List<Popups> mainPopups = popupService.listByTypeOpen("MAIN");
+    model.addAttribute("mainPopups", mainPopups);
 
     return "index";
   }

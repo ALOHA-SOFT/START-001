@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aloha.start.mapper.common.BoardMapper">
+
+    <resultMap id="BoardMap" type="com.aloha.start.domain.common.Board">
+        <id property="no" column="no"/>
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="views" column="views"/>
+        <result property="seq" column="seq"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 페이징 조회 -->
+    <select id="listWithParams" resultMap="BoardMap">
+        SELECT *
+        FROM board
+        WHERE 1=1
+        <if test="queryParams.params != null">
+            <if test="queryParams.params.type != null and queryParams.params.type != ''">
+                AND type = #{queryParams.params.type}
+            </if>
+        </if>
+        <if test="queryParams.search != null and queryParams.search != ''">
+            AND (title LIKE CONCAT('%', #{queryParams.search}, '%') 
+                OR content LIKE CONCAT('%', #{queryParams.search}, '%'))
+        </if>
+        <if test="queryParams.sortBy != null and queryParams.sortBy.size() > 0">
+            ORDER BY
+            <foreach collection="queryParams.sortBy" item="sortField" index="idx" separator=",">
+                ${sortField}
+                <if test="queryParams.sortOrder != null and queryParams.sortOrder.size() > idx">
+                    ${queryParams.sortOrder[idx]}
+                </if>
+            </foreach>
+        </if>
+        <if test="queryParams.sortBy == null or queryParams.sortBy.size() == 0">
+            ORDER BY seq ASC, no DESC
+        </if>
+    </select>
+
+</mapper>

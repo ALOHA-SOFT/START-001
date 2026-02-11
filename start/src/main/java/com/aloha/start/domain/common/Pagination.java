@@ -67,6 +67,8 @@ public class Pagination {
 
     // 페이징 처리 수식
     public void calc() {
+        // divide by zero 방지
+        this.size = this.size <= 0 ? SIZE : this.size;
         // 첫 번호
         this.first = 1;
         // 마지막 번호

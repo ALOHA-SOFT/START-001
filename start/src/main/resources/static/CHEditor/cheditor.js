@@ -517,7 +517,7 @@ function setConfig() {
         useModifyTable      : true,
         useMap              : true,
         useTextBlock        : true,
-        useFullScreen       : false,
+        useFullScreen       : true,
         usePageBreak        : false
     },
     base, elem, i, editorUri, locationAbs;
