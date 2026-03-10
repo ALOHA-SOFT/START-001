@@ -11,6 +11,7 @@ import com.aloha.start.domain.users.Users;
 import com.aloha.start.mapper.users.UserAuthMapper;
 import com.aloha.start.mapper.users.UserMapper;
 import com.aloha.start.service.impl.BaseServiceImpl;
+import com.aloha.start.service.inter.common.EmailService;
 import com.aloha.start.service.inter.users.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
@@ -25,6 +26,7 @@ public class UserServiceImpl extends BaseServiceImpl<Users, UserMapper> implemen
     @Autowired UserMapper mapper;
     @Autowired UserAuthMapper userAuthMapper;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired EmailService emailService;
 
     @Transactional
     @Override
@@ -223,7 +225,12 @@ public class UserServiceImpl extends BaseServiceImpl<Users, UserMapper> implemen
             if (result > 0) {
                 log.info("임시 비밀번호 설정 성공: {}", username);
                 
-                // TODO : 이메일 발송 (실제 구현에서는 EmailService 사용)
+                // 임시 비밀번호 이메일 발송 (실패해도 비밀번호 재설정은 성공 처리)
+                try {
+                    emailService.sendTempPasswordMail(user.getEmail(), username, tempPassword);
+                } catch (Exception mailEx) {
+                    log.error("임시 비밀번호 이메일 발송 실패 (비밀번호 재설정은 완료): username={}, error={}", username, mailEx.getMessage());
+                }
                 
                 return true;
             } else {
