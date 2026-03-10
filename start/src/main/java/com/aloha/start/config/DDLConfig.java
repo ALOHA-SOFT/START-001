@@ -87,7 +87,10 @@ public class DDLConfig implements IDdl {
 
   @Override
   public List<String> getSqlFiles() {
-    return List.of("db/DDL.sql", "db/data/users.sql");
+    return List.of(
+      // "db/DDL.sql", 
+      // "db/data/users.sql"
+    );
   }
   
 }
