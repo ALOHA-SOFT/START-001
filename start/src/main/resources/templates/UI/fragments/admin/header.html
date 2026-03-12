@@ -375,7 +375,7 @@
               </div>
             </a>
             <hr class="dropdown-divider">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" th:href="@{/admin/users/update/{id}(id=${session.user.id})}">
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" th:href="@{/admin/users/update/{id}(id=${session.user != null ? session.user.id : ''})}">
               <i class="material-icons-outlined">person_outline</i>
               프로필
             </a>
