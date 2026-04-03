@@ -49,6 +49,9 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	// httpclient
+	implementation 'org.apache.httpcomponents:httpclient:4.5'
+	implementation 'org.apache.httpcomponents:httpmime:4.3.1'
 }
 
 tasks.named('test') {

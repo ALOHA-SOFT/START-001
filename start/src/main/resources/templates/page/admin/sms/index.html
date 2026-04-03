@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{UI/layouts/admin/admin_layout}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>문자발송</title>
+</head>
+<body layout:fragment="content">
+  <main class="main-wrapper">
+    <div class="main-content">
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">
+          <i class="fadeIn animated bx bx-message"></i>
+          문자발송
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- 좌측: 문자 발송 -->
+        <div class="col-lg-7 col-12 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bx bx-send me-2"></i>문자 발송</h5>
+            </div>
+            <div class="card-body">
+              <!-- 수신번호 입력 -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">수신번호</label>
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" id="phoneInput" placeholder="전화번호 입력 (예: 01012345678)">
+                  <button class="btn btn-outline-primary" type="button" id="addPhoneBtn">
+                    <i class="bx bx-plus"></i> 추가
+                  </button>
+                </div>
+                <div id="phoneChips" class="d-flex flex-wrap gap-2 mb-2"></div>
+                <small class="text-muted">여러 번호를 추가하여 단체문자를 보낼 수 있습니다.</small>
+              </div>
+
+              <!-- 회원 검색 -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">회원 검색</label>
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" id="userSearchInput" placeholder="이름, 아이디, 전화번호로 검색">
+                  <button class="btn btn-outline-secondary" type="button" id="userSearchBtn">
+                    <i class="bx bx-search"></i> 검색
+                  </button>
+                </div>
+                <div id="userSearchResults" class="border rounded" style="max-height: 200px; overflow-y: auto; display: none;">
+                  <table class="table table-sm table-hover mb-0">
+                    <thead class="sticky-top bg-light">
+                      <tr>
+                        <th style="width:40px;"></th>
+                        <th>이름</th>
+                        <th>아이디</th>
+                        <th>전화번호</th>
+                      </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <hr>
+
+              <!-- 문자 내용 -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">문자 내용</label>
+                <textarea class="form-control" id="smsContent" rows="6" placeholder="문자 내용을 입력하세요..." maxlength="2000"></textarea>
+                <div class="d-flex justify-content-between mt-1">
+                  <small class="text-muted">
+                    <span id="charCount">0</span> / 2000자
+                    (<span id="smsType">SMS</span>)
+                  </small>
+                  <small class="text-muted">90자 초과 시 LMS로 발송</small>
+                </div>
+              </div>
+
+              <!-- 발송 버튼 -->
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary flex-fill" id="sendBtn">
+                  <i class="bx bx-send me-1"></i> 문자 발송
+                </button>
+                <button class="btn btn-outline-secondary" id="resetBtn">
+                  <i class="bx bx-reset me-1"></i> 초기화
+                </button>
+              </div>
+
+              <!-- 발송 결과 -->
+              <div id="sendResult" class="mt-3" style="display:none;">
+                <div class="alert" id="sendResultAlert">
+                  <div id="sendResultMessage"></div>
+                  <div id="sendResultDetails" class="mt-2" style="font-size:0.85rem;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 자주 쓰는 문자 -->
+        <div class="col-lg-5 col-12 mb-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0"><i class="bx bx-bookmark me-2"></i>자주 쓰는 문자</h5>
+              <button class="btn btn-sm btn-primary" id="addTemplateBtn">
+                <i class="bx bx-plus"></i> 추가
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div id="templateList" style="max-height: 600px; overflow-y: auto;"></div>
+              <div id="noTemplates" class="text-center text-muted py-5">
+                <i class="bx bx-info-circle fs-3 d-block mb-2"></i>
+                등록된 템플릿이 없습니다.
+              </div>
+            </div>
+          </div>
+
+          <!-- 템플릿 추가/수정 모달 -->
+          <div class="modal fade" id="templateModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="templateModalTitle">자주 쓰는 문자 추가</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" id="templateId">
+                  <div class="mb-3">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-control" id="templateTitle" placeholder="템플릿 제목">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">내용</label>
+                    <textarea class="form-control" id="templateContent" rows="5" placeholder="문자 내용"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                  <button type="button" class="btn btn-primary" id="saveTemplateBtn">저장</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script th:src="@{/js/common/ajax.js}"></script>
+  <script th:src="@{/js/common/alert.js}"></script>
+  <script>
+    const API_BASE = '/api/admin/sms';
+    let phoneList = [];
+
+    // ===================== 수신번호 관리 =====================
+    document.getElementById('addPhoneBtn').addEventListener('click', addPhone);
+    document.getElementById('phoneInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); addPhone(); }
+    });
+
+    function addPhone() {
+      const input = document.getElementById('phoneInput');
+      const phone = input.value.trim().replace(/[^0-9]/g, '');
+      if (!phone || phone.length < 10) { $alert('알림', '올바른 전화번호를 입력해주세요.', 'warning'); return; }
+      if (phoneList.includes(phone)) { $toast({ title: '이미 추가된 번호입니다.', icon: 'info' }); return; }
+      phoneList.push(phone);
+      input.value = '';
+      renderPhoneChips();
+    }
+
+    function removePhone(phone) {
+      phoneList = phoneList.filter(p => p !== phone);
+      renderPhoneChips();
+    }
+
+    function renderPhoneChips() {
+      const container = document.getElementById('phoneChips');
+      container.innerHTML = phoneList.map(phone => 
+        `<span class="badge bg-primary d-flex align-items-center gap-1 py-2 px-3" style="font-size:0.85rem;">
+          ${formatPhone(phone)}
+          <button type="button" class="btn-close btn-close-white ms-1" style="font-size:0.6rem;" onclick="removePhone('${phone}')"></button>
+        </span>`
+      ).join('');
+    }
+
+    function formatPhone(phone) {
+      if (phone.length === 11) return phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+      if (phone.length === 10) return phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+      return phone;
+    }
+
+    // ===================== 회원 검색 =====================
+    document.getElementById('userSearchBtn').addEventListener('click', searchUsers);
+    document.getElementById('userSearchInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); searchUsers(); }
+    });
+
+    async function searchUsers() {
+      const keyword = document.getElementById('userSearchInput').value.trim();
+      const users = await $ajax({
+        url: `${API_BASE}/users`,
+        type: 'GET',
+        data: { keyword: keyword }
+      });
+      const tbody = document.getElementById('userTableBody');
+      const resultsDiv = document.getElementById('userSearchResults');
+
+      if (users === 'FAIL' || !users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">검색 결과가 없습니다.</td></tr>';
+      } else {
+        tbody.innerHTML = users.map(u => 
+          `<tr>
+            <td><button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="addUserPhone('${u.tel || ''}', '${u.name || ''}')"><i class="bx bx-plus"></i></button></td>
+            <td>${u.name || '-'}</td>
+            <td>${u.username || '-'}</td>
+            <td>${u.tel || '-'}</td>
+          </tr>`
+        ).join('');
+      }
+      resultsDiv.style.display = 'block';
+    }
+
+    function addUserPhone(tel, name) {
+      if (!tel) { $alert('알림', '전화번호가 없는 회원입니다.', 'warning'); return; }
+      const phone = tel.replace(/[^0-9]/g, '');
+      if (phoneList.includes(phone)) { $toast({ title: '이미 추가된 번호입니다.', icon: 'info' }); return; }
+      phoneList.push(phone);
+      renderPhoneChips();
+      $toast({ title: `${name || phone} 추가됨`, icon: 'success' });
+    }
+
+    // ===================== 글자수 카운트 =====================
+    document.getElementById('smsContent').addEventListener('input', function() {
+      const len = this.value.length;
+      document.getElementById('charCount').textContent = len;
+      document.getElementById('smsType').textContent = len > 90 ? 'LMS' : 'SMS';
+    });
+
+    // ===================== 문자 발송 =====================
+    document.getElementById('sendBtn').addEventListener('click', async function() {
+      if (phoneList.length === 0) { $alert('알림', '수신번호를 추가해주세요.', 'warning'); return; }
+      const msg = document.getElementById('smsContent').value.trim();
+      if (!msg) { $alert('알림', '문자 내용을 입력해주세요.', 'warning'); return; }
+
+      const result = await $confirm('문자 발송', `${phoneList.length}명에게 문자를 발송하시겠습니까?`, 'question', '발송', '취소');
+      if (!result.isConfirmed) return;
+
+      this.disabled = true;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 발송중...';
+
+      const data = await $ajax({
+        url: `${API_BASE}/send`,
+        type: 'POST',
+        data: { receivers: phoneList.join(','), msg: msg }
+      });
+
+      if (data !== 'FAIL' && data) {
+        const resultDiv = document.getElementById('sendResult');
+        const alertDiv = document.getElementById('sendResultAlert');
+        const msgDiv = document.getElementById('sendResultMessage');
+        const detailsDiv = document.getElementById('sendResultDetails');
+
+        alertDiv.className = 'alert ' + (data.success ? 'alert-success' : 'alert-danger');
+        msgDiv.innerHTML = `<strong>${data.message}</strong>`;
+        if (data.details) {
+          detailsDiv.innerHTML = data.details.map(d => `<div>${d}</div>`).join('');
+        }
+        resultDiv.style.display = 'block';
+
+        if (data.success) {
+          $toast({ title: '문자 발송 완료', icon: 'success' });
+        } else {
+          $toast({ title: '일부 발송 실패', icon: 'warning' });
+        }
+      } else {
+        $alert('오류', '발송 중 오류가 발생했습니다.', 'error');
+      }
+
+      this.disabled = false;
+      this.innerHTML = '<i class="bx bx-send me-1"></i> 문자 발송';
+    });
+
+    // 초기화
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      phoneList = [];
+      renderPhoneChips();
+      document.getElementById('smsContent').value = '';
+      document.getElementById('charCount').textContent = '0';
+      document.getElementById('smsType').textContent = 'SMS';
+      document.getElementById('sendResult').style.display = 'none';
+      document.getElementById('userSearchResults').style.display = 'none';
+      document.getElementById('userSearchInput').value = '';
+      document.getElementById('phoneInput').value = '';
+      $toast({ title: '초기화 완료', icon: 'success' });
+    });
+
+    // ===================== 자주 쓰는 문자 템플릿 =====================
+    let templateModal;
+    document.addEventListener('DOMContentLoaded', function() {
+      templateModal = new bootstrap.Modal(document.getElementById('templateModal'));
+      loadTemplates();
+    });
+
+    document.getElementById('addTemplateBtn').addEventListener('click', function() {
+      document.getElementById('templateId').value = '';
+      document.getElementById('templateTitle').value = '';
+      document.getElementById('templateContent').value = '';
+      document.getElementById('templateModalTitle').textContent = '자주 쓰는 문자 추가';
+      templateModal.show();
+    });
+
+    document.getElementById('saveTemplateBtn').addEventListener('click', async function() {
+      const id = document.getElementById('templateId').value;
+      const title = document.getElementById('templateTitle').value.trim();
+      const content = document.getElementById('templateContent').value.trim();
+      if (!title || !content) { $alert('알림', '제목과 내용을 입력해주세요.', 'warning'); return; }
+
+      const url = id ? `${API_BASE}/templates/${id}` : `${API_BASE}/templates`;
+      const method = id ? 'PUT' : 'POST';
+      const data = await $ajax({
+        url: url,
+        type: method,
+        data: { title, content }
+      });
+
+      if (data !== 'FAIL' && data && data.success) {
+        templateModal.hide();
+        loadTemplates();
+        $toast({ title: '저장 완료', icon: 'success' });
+      } else {
+        $alert('오류', '저장에 실패했습니다.', 'error');
+      }
+    });
+
+    async function loadTemplates() {
+      const templates = await $ajax({
+        url: `${API_BASE}/templates`,
+        type: 'GET'
+      });
+      const container = document.getElementById('templateList');
+      const noData = document.getElementById('noTemplates');
+
+      if (templates === 'FAIL' || !templates || templates.length === 0) {
+        container.innerHTML = '';
+        noData.style.display = 'block';
+        return;
+      }
+      noData.style.display = 'none';
+
+      container.innerHTML = templates.map(t => 
+        `<div class="border-bottom p-3 template-item" style="cursor:pointer;">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <h6 class="mb-0 fw-semibold">${escapeHtml(t.title)}</h6>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-primary py-0 px-1" title="내용 적용" onclick="event.stopPropagation(); applyTemplate('${escapeAttr(t.content)}')">
+                <i class="bx bx-check"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="수정" onclick="event.stopPropagation(); editTemplate('${t.id}', '${escapeAttr(t.title)}', '${escapeAttr(t.content)}')">
+                <i class="bx bx-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger py-0 px-1" title="삭제" onclick="event.stopPropagation(); deleteTemplate('${t.id}')">
+                <i class="bx bx-trash"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-muted mb-0" style="font-size:0.85rem; white-space:pre-line;">${escapeHtml(t.content)}</p>
+        </div>`
+      ).join('');
+    }
+
+    function applyTemplate(content) {
+      document.getElementById('smsContent').value = content;
+      document.getElementById('charCount').textContent = content.length;
+      document.getElementById('smsType').textContent = content.length > 90 ? 'LMS' : 'SMS';
+      $toast({ title: '템플릿 적용됨', icon: 'success' });
+    }
+
+    function editTemplate(id, title, content) {
+      document.getElementById('templateId').value = id;
+      document.getElementById('templateTitle').value = title;
+      document.getElementById('templateContent').value = content;
+      document.getElementById('templateModalTitle').textContent = '자주 쓰는 문자 수정';
+      templateModal.show();
+    }
+
+    async function deleteTemplate(id) {
+      const result = await $confirm('삭제', '이 템플릿을 삭제하시겠습니까?', 'warning', '삭제', '취소');
+      if (!result.isConfirmed) return;
+      await $ajax({
+        url: `${API_BASE}/templates/${id}`,
+        type: 'DELETE'
+      });
+      loadTemplates();
+      $toast({ title: '삭제 완료', icon: 'success' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function escapeAttr(str) {
+      if (!str) return '';
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+    }
+  </script>
+
+  <style>
+    .template-item:hover { background-color: #f8f9fa; }
+  </style>
+</body>
+</html>

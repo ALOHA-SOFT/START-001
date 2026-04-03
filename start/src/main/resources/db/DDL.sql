@@ -176,5 +176,18 @@ CREATE TABLE `media` (
 	PRIMARY KEY (`no`)
 );
 
+CREATE TABLE `sms_template` (
+	`no`			BIGINT			NOT NULL AUTO_INCREMENT	COMMENT 'PK',
+	`id`			VARCHAR(64)		NOT NULL				COMMENT 'UK',
+	`title`			VARCHAR(200)	NOT NULL				COMMENT '템플릿 제목',
+	`content`		TEXT			NOT NULL				COMMENT '문자 내용',
+	`seq`			INT				NOT NULL	DEFAULT 0	COMMENT '순서',
+	`created_at`	TIMESTAMP		NOT NULL	DEFAULT CURRENT_TIMESTAMP	COMMENT '등록일자',
+	`updated_at`	TIMESTAMP		NOT NULL	DEFAULT CURRENT_TIMESTAMP	COMMENT '수정일자',
+	PRIMARY KEY (`no`),
+	UNIQUE KEY `uk_sms_template_id` (`id`)
+) COMMENT = '자주 쓰는 문자 템플릿';
+
+
 -- 외래키 복원
 SET FOREIGN_KEY_CHECKS = 1;
