@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # APP.war 프로세스 종료 스크립트
-# 실행 중인 java -jar APP.war 프로세스 종료
+# 현재 경로의 APP.war 프로세스만 종료
 
-PIDS=$(ps -ef | grep '[j]ava.*APP.war' | awk '{print $2}')
+cd "$(dirname "$0")"
+APP_PATH="$(pwd)/APP.war"
+
+PIDS=$(ps -ef | grep '[j]ava.*-jar' | grep "$APP_PATH" | awk '{print $2}')
 
 if [ -z "$PIDS" ]; then
   echo "실행 중인 APP.war 프로세스가 없습니다."

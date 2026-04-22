@@ -14,5 +14,8 @@ if [ ! -x "$JAVA_CMD" ]; then
   JAVA_CMD=java
 fi
 
+# JVM 메모리 제한 (최소 128MB, 최대 256MB)
+JAVA_OPTS="-Xms128m -Xmx256m"
+
 # APP.war 파일을 백그라운드에서 실행하고 로그 저장
-$JAVA_CMD -jar APP.war > "$LOG_FILE" 2>&1 &
+$JAVA_CMD $JAVA_OPTS -jar APP.war > "$LOG_FILE" 2>&1 &
