@@ -176,6 +176,7 @@ CREATE TABLE `media` (
 	PRIMARY KEY (`no`)
 );
 
+DROP TABLE IF EXISTS `sms_template`;
 CREATE TABLE `sms_template` (
 	`no`			BIGINT			NOT NULL AUTO_INCREMENT	COMMENT 'PK',
 	`id`			VARCHAR(64)		NOT NULL				COMMENT 'UK',
